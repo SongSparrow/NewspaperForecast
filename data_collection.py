@@ -9,9 +9,17 @@ url_min_page_code = 10000
 max_date_time = datetime.strptime("2020-05-19", '%Y-%m-%d').date()
 min_date_time = datetime.strptime("2017-10-27", '%Y-%m-%d').date()
 url_head = 'https://news.cqu.edu.cn/newsv2/show-14-'
+_headers = {
+    "Cookies": "UM_distinctid=16f183f0e656d-0c44a277e897db-7711a3e-144000-16f183f0e66d; "
+               "Hm_lvt_fbbe8c393836a313e189554e91805a69=1585301062,1585805916; "
+               "Hm_lvt_bb57c1f66ec2fc27e393f9615bad47e5=1589206619,1590718273,1590719672; "
+               "Hm_lpvt_bb57c1f66ec2fc27e393f9615bad47e5=1590720915",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/80.0.3987.106 Safari/537.36"
+}
 
-
-#  检查文档中是否包含关键词
+#  检查html文档是否是新闻html
 def not_exist(text):
     doc = pq(text)
     head_title = doc('h5').text()
@@ -30,15 +38,6 @@ def not_within_date(text_date):
 
 # 获取对应url的html文档
 def get_web_page(url):
-    _headers = {
-        "Cookies": "UM_distinctid=16f183f0e656d-0c44a277e897db-7711a3e-144000-16f183f0e66d; "
-                   "Hm_lvt_fbbe8c393836a313e189554e91805a69=1585301062,1585805916; "
-                   "Hm_lvt_bb57c1f66ec2fc27e393f9615bad47e5=1589206619,1590718273,1590719672; "
-                   "Hm_lpvt_bb57c1f66ec2fc27e393f9615bad47e5=1590720915",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/80.0.3987.106 Safari/537.36"
-    }
     request_source = rq.get(url, headers=_headers)
     return request_source.text
 
@@ -57,10 +56,6 @@ def get_article(page):
     if not_exist(page):
         return None
     document = pq(page)
-    _headers = {
-        "Cookies": "UM_distinctid=16f183f0e656d-0c44a277e897db-7711a3e-144000-16f183f0e66d; Hm_lvt_fbbe8c393836a313e189554e91805a69=1585301062,1585805916; Hm_lvt_bb57c1f66ec2fc27e393f9615bad47e5=1589206619,1590718273,1590719672; Hm_lpvt_bb57c1f66ec2fc27e393f9615bad47e5=1590720915",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.106 Safari/537.36"
-    }
     article_elements = []
     # get title
     title = document('h1').text()
@@ -111,6 +106,7 @@ def store_in_csv(file_name):
         if not classify_article:
             continue
         writer.writerow(classify_article)
+
 
 
 store_in_csv('raw_news_data.csv')
