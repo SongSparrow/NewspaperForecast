@@ -7,7 +7,7 @@ from datetime import datetime
 url_max_page_code = 22000
 url_min_page_code = 10000
 max_date_time = datetime.strptime("2020-05-19", '%Y-%m-%d').date()
-min_date_time = datetime.strptime("2019-10-27", '%Y-%m-%d').date()
+min_date_time = datetime.strptime("2017-10-27", '%Y-%m-%d').date()
 url_head = 'https://news.cqu.edu.cn/newsv2/show-14-'
 _headers = {
     "Cookies": "UM_distinctid=16f183f0e656d-0c44a277e897db-7711a3e-144000-16f183f0e66d; "
@@ -18,6 +18,7 @@ _headers = {
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/80.0.3987.106 Safari/537.36"
 }
+
 
 #  检查html文档是否是新闻html
 def not_exist(text):
@@ -56,34 +57,43 @@ def get_article(page):
     if not_exist(page):
         return None
     document = pq(page)
-    article_elements = []
-    # get title
-    title = document('h1').text()
-    # get writer
-    writer_nodes = document(".dinfoa").find("a")
-    writer = writer_nodes.text(" ")
+
     # get date
     date_text = document(".ibox span").text()
     date_str = date_text.split(":")
     date = date_str[1].strip()
-    # get content
-    content = document(".acontent").text()
+    # if the date is out of the limitation
+    if not_within_date(date):
+        return None
+
+    article_elements = []
+    # get title
+    title = document('h1').text()
+
+    # get writer
+    writer = "无名氏"
+    writer_nodes = document(".dinfoa")
+    if writer_nodes.find("span").text() == "作者 :":
+        writer = writer_nodes.find("a").text()
+
     # get tags
-    tag_nodes = document(".tags").find("a")
-    tags = tag_nodes.text(" ")
+    tag_nodes = document(".tags")
+    tags = "Nothing"
+    if tag_nodes.find("span").text() == "相关热词搜索 :":
+        tags = tag_nodes.find("a").text()
+        if str.find(tags, "，") != -1:
+            tags = tags.replace("，", " ")
+        if str.find(tags, ";"):
+            tags = tags.replace(";", " ")
+
     # get hits
     hits_link = document("script[language=JavaScript]").attr.src
     data_text = rq.get(hits_link, headers=_headers).text
     hits = re.findall("[0-9]+", data_text)[-1]
-    # generally the size of content will be less than 5 when the article is transmitted
-    # if the date is out of the limitation
-    if (len(content) < 5) or not_within_date(date):
-        return None
 
     article_elements.append(title)
     article_elements.append(writer)
     article_elements.append(date)
-    article_elements.append(content)
     article_elements.append(tags)
     article_elements.append(hits)
 
@@ -94,15 +104,15 @@ def get_article(page):
 def store_in_csv(file_name):
     csv_file = open(file_name, "w", newline='', encoding='utf-8-sig')
     writer = csv.writer(csv_file)
-    writer.writerow(["title", "writer", "date", "content", "tags", "hits"])
+    writer.writerow(["title", "writer", "date", "tags", "hits"])
     all_the_urls = get_all_url(url_min_page_code, url_max_page_code)
+    print(all_the_urls)
     for url_item in all_the_urls:
         web_page_text = get_web_page(url_item)
         classify_article = get_article(web_page_text)
-        if not classify_article:
+        if classify_article is None:
             continue
         writer.writerow(classify_article)
-
 
 
 store_in_csv('raw_news_data.csv')
