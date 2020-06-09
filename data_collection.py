@@ -7,7 +7,7 @@ from datetime import datetime
 url_max_page_code = 22000
 url_min_page_code = 10000
 max_date_time = datetime.strptime("2020-05-19", '%Y-%m-%d').date()
-min_date_time = datetime.strptime("2017-10-27", '%Y-%m-%d').date()
+min_date_time = datetime.strptime("2019-10-27", '%Y-%m-%d').date()
 url_head = 'https://news.cqu.edu.cn/newsv2/show-14-'
 _headers = {
     "Cookies": "UM_distinctid=16f183f0e656d-0c44a277e897db-7711a3e-144000-16f183f0e66d; "
@@ -61,9 +61,7 @@ def get_article(page):
     title = document('h1').text()
     # get writer
     writer_nodes = document(".dinfoa").find("a")
-    writer = ""
-    for node in writer_nodes:
-        writer += (" " + node.text())
+    writer = writer_nodes.text(" ")
     # get date
     date_text = document(".ibox span").text()
     date_str = date_text.split(":")
@@ -72,9 +70,7 @@ def get_article(page):
     content = document(".acontent").text()
     # get tags
     tag_nodes = document(".tags").find("a")
-    tags = ""
-    for node in tag_nodes:
-        tags += (" " + node.text())
+    tags = tag_nodes.text(" ")
     # get hits
     hits_link = document("script[language=JavaScript]").attr.src
     data_text = rq.get(hits_link, headers=_headers).text
