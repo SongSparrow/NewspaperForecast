@@ -39,7 +39,7 @@ while i < length:
         hit_sum += tag_hit_list[i + 1][1]
         i += 1
     # 将结果存储在tag_hit_u_list中
-    tag_hit_u_list.append((tag_hit_list[i][0],hit_sum))
+    tag_hit_u_list.append((tag_hit_list[i][0], hit_sum))
     i += 1
 
 length = len(tag_hit_u_list)
