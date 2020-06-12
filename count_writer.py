@@ -38,12 +38,12 @@ for i in range(0, length):
     hit_list.append(writer_hit_u_list[i][1])
     count.append(writer_hit_u_list[i][2])
 tag_hit_dic = {
-    "tags": writer_list,
+    "writers": writer_list,
     "hits": hit_list,
     "count": count
 }
 writer_hit_df = pd.DataFrame(tag_hit_dic)
-writer_hit_df.to_csv("writers.csv")
+writer_hit_df.to_csv("writers.csv",index=None)
 writer_hit_df = writer_hit_df.sort_values(by="hits")
 print(writer_hit_df)
 

@@ -59,7 +59,7 @@ tag_hit_dic = {
     "count": count
 }
 tag_hit_df = pd.DataFrame(tag_hit_dic)
-tag_hit_df.to_csv("tags.csv")
+tag_hit_df.to_csv("tags.csv",index=None)
 # 按点击量排序
 tag_hit_df = tag_hit_df.sort_values(by="hits")
 print(tag_hit_df)
